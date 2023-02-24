@@ -12,25 +12,29 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 */
 abstract class XmlStreamer
 {
-    private $closeWhenFinished = false;
+    private bool $closeWhenFinished = false;
     private $handle;
-    private $totalBytes;
-    private $readBytes = 0;
-    private $nodeIndex = 0;
-    private $chunk = "";
-    private $chunkSize;
-    private $readFromChunkPos;
+    private ?int $totalBytes ;
+    private int $readBytes = 0;
+    private int $nodeIndex = 0;
+    private string $chunk = "";
+    private int $chunkSize;
+    private int $readFromChunkPos;
 
-    private $rootNode;
-    private $customRootNode;
+    private ?string $rootNode;
+    private ?string $customRootNode;
+	private ?string $customChildNode;
 
-    /**
-    * @param $mixed             Path to XML file OR file handle
-    * @param $chunkSize         Bytes to read per cycle (Optional, default is 16 KiB)
-    * @param $customRootNode    Specific root node to use (Optional)
-    * @param $totalBytes        Xml file size - Required if supplied file handle
-    */
-    public function __construct($mixed, $chunkSize = 16384, $customRootNode = null, $totalBytes = null, $customChildNode = null) {
+	/**
+	 * @param $mixed             Path to XML file OR file handle
+	 * @param int $chunkSize Bytes to read per cycle (Optional, default is 16 KiB)
+	 * @param string|null $customRootNode Specific root node to use (Optional)
+	 * @param int|null $totalBytes Xml file size - Required if supplied file handle
+	 * @param string|null $customChildNode
+	 *
+	 * @throws \Exception
+	 */
+    public function __construct(mixed $mixed, int $chunkSize = 16384, ?string $customRootNode = null, int $totalBytes = null, ?string $customChildNode = null) {
         if (is_string($mixed)) {
             $this->handle = fopen($mixed, "r");
             $this->closeWhenFinished = true;
@@ -79,7 +83,7 @@ abstract class XmlStreamer
     /**
     * Gets the total read bytes so far
     */
-    public function getReadBytes()
+    public function getReadBytes(): int
     {
         return $this->readBytes;
     }
@@ -87,7 +91,7 @@ abstract class XmlStreamer
     /**
     * Gets the total file size of the xml
     */
-    public function getTotalBytes()
+    public function getTotalBytes(): false|int|null
     {
         return $this->totalBytes;
     }
@@ -95,7 +99,7 @@ abstract class XmlStreamer
     /**
     * Starts the streaming and parsing of the XML file
     */
-    public function parse()
+    public function parse(): bool
     {
         $counter = 0;
         $continue = true;
@@ -244,7 +248,7 @@ abstract class XmlStreamer
         return isset($this->rootNode);
     }
 
-    private function readNextChunk()
+    private function readNextChunk(): bool
     {
         $this->chunk .= fread($this->handle, $this->chunkSize);
         $this->readBytes += $this->chunkSize;
