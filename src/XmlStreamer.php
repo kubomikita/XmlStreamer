@@ -73,10 +73,13 @@ abstract class XmlStreamer
 
     /**
     * Gets called for every XML node that is found as a child to the root node
+    * If false is returned, the streaming will stop
+    *
     * @param $xmlString     Complete XML tree of the node as a string
     * @param $elementName   Name of the node for easy access
     * @param $nodeIndex     Zero-based index that increments for every node
-    * @return false|void               If false is returned, the streaming will stop
+    *
+    * @return false|void
     */
     abstract public function processNode($xmlString, $elementName, $nodeIndex);
 
